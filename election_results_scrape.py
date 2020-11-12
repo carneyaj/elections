@@ -1,3 +1,6 @@
+#Pulls Data from the New York Times Election page
+#Collaboration with Alistair Hayden
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -11,6 +14,7 @@ totals = []
 pcts = []
 remaining = []
 
+#Loop over the webpage for each state
 for state in states:
   print('\r'+state, end='')
   source = requests.get('https://www.nytimes.com/interactive/2020/11/03/us/elections/results-'+state+'.html').text
@@ -27,9 +31,10 @@ for state in states:
   pcts.append(pct)
   rem = round(total/pct*(100-pct))
   remaining.append(rem)
-  print('\r'+'                              ', end='')
+  print('\r'+'                              ', end='') #print spaces to clear the previous state name, in case the next is shorter.
 print('')
 
+#Build a final row with nationwide totals.
 table.append(["TOTAL",sum(totals),round(100-100*sum(remaining)/sum(totals)),sum(remaining)])
 totals.append(sum(totals))
 remaining.append(sum(remaining))
@@ -41,6 +46,7 @@ df = pd.DataFrame(fulltable)
 df = df.set_index("State")
 print(df)
 
+#Output data to a timestamped .csv
 time = datetime.now(tz).strftime('%m-%d-%H-%M')
 filetime = 'electiondata_'+time+'.csv'
 df.to_csv(filetime)
